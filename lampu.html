@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kontrol Lampu</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  </head>
+  <body class="bg-light">
+    <div class="container mt-5">
+      <h1 class="text-center">Kontrol Lampu</h1>
+      <div class="row justify-content-center mt-4">
+        <!-- Lampu Merah -->
+        <div class="col-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title">Lampu Merah</h5>
+              <img
+                id="lampu-merah"
+                src="https://www.w3schools.com/js/pic_bulboff.gif"
+                alt="Lampu Merah"
+                width="100"
+                height="100"
+                class="lampu-gambar"
+                data-status="off"
+              />
+              <p class="mt-3">
+                <button class="btn btn-danger" id="lampu-merah-btn">OFF</button>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lampu Hijau -->
+        <div class="col-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title">Lampu Hijau</h5>
+              <img
+                id="lampu-hijau"
+                src="https://www.w3schools.com/js/pic_bulboff.gif"
+                alt="Lampu Hijau"
+                width="100"
+                height="100"
+                class="lampu-gambar"
+                data-status="off"
+              />
+              <p class="mt-3">
+                <button class="btn btn-danger" id="lampu-hijau-btn">OFF</button>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lampu Kuning -->
+        <div class="col-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title">Lampu Kuning</h5>
+              <img
+                id="lampu-kuning"
+                src="https://www.w3schools.com/js/pic_bulboff.gif"
+                alt="Lampu Kuning"
+                width="100"
+                height="100"
+                class="lampu-gambar"
+                data-status="off"
+              />
+              <p class="mt-3">
+                <button class="btn btn-danger" id="lampu-kuning-btn">
+                  OFF
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // URL ESP32
+      const esp32BaseUrl = "http://192.168.1.8"; // Ganti dengan IP ESP32 Anda
+
+      // Fungsi untuk mengubah status gambar lampu
+      function updateLampu(lamp, status) {
+        const lampuImg = `#lampu-${lamp}`;
+        if (status === "on") {
+          $(lampuImg).attr(
+            "src",
+            "https://www.w3schools.com/js/pic_bulbon.gif"
+          );
+          $(lampuImg).attr("data-status", "on");
+        } else {
+          $(lampuImg).attr(
+            "src",
+            "https://www.w3schools.com/js/pic_bulboff.gif"
+          );
+          $(lampuImg).attr("data-status", "off");
+        }
+      }
+
+      // Fungsi untuk memperbarui status tombol
+      function updateButton(buttonId, status) {
+        const button = $(buttonId);
+        if (status === "on") {
+          button.text("ON");
+          button.removeClass("btn-danger").addClass("btn-success");
+        } else {
+          button.text("OFF");
+          button.removeClass("btn-success").addClass("btn-danger");
+        }
+      }
+
+      // Event untuk Lampu Merah
+      $("#lampu-merah-btn").click(() => {
+        const status = $("#lampu-merah").attr("data-status");
+        if (status === "off") {
+          console.log("merah on");
+          $.get(`${esp32BaseUrl}/merah/on`, () => {
+            updateLampu("merah", "on");
+            updateButton("#lampu-merah-btn", "on");
+          });
+        } else {
+          console.log("merah off");
+          $.get(`${esp32BaseUrl}/merah/off`, () => {
+            updateLampu("merah", "off");
+            updateButton("#lampu-merah-btn", "off");
+          });
+        }
+      });
+
+      // Event untuk Lampu Hijau
+      $("#lampu-hijau-btn").click(() => {
+        const status = $("#lampu-hijau").attr("data-status");
+        if (status === "off") {
+          console.log("hijau on");
+          $.get(`${esp32BaseUrl}/hijau/on`, () => {
+            updateLampu("hijau", "on");
+            updateButton("#lampu-hijau-btn", "on");
+          });
+        } else {
+          console.log("hijau off");
+          $.get(`${esp32BaseUrl}/hijau/off`, () => {
+            updateLampu("hijau", "off");
+            updateButton("#lampu-hijau-btn", "off");
+          });
+        }
+      });
+
+      // Event untuk Lampu Kuning
+      $("#lampu-kuning-btn").click(() => {
+        const status = $("#lampu-kuning").attr("data-status");
+        if (status === "off") {
+          console.log("kuning on");
+          $.get(`${esp32BaseUrl}/kuning/on`, () => {
+            updateLampu("kuning", "on");
+            updateButton("#lampu-kuning-btn", "on");
+          });
+        } else {
+          console.log("kuning off");
+          $.get(`${esp32BaseUrl}/kuning/off`, () => {
+            updateLampu("kuning", "off");
+            updateButton("#lampu-kuning-btn", "off");
+          });
+        }
+      });
+
+      // Fungsi untuk memperbarui status lampu secara otomatis setiap detik
+      function updateLampuStatus() {
+        $.get(`${esp32BaseUrl}/status`, function (data) {
+          // Update status lampu berdasarkan data dari ESP32
+          updateLampu("merah", data.merah ? "on" : "off");
+          updateLampu("hijau", data.hijau ? "on" : "off");
+          updateLampu("kuning", data.kuning ? "on" : "off");
+
+          // Memperbarui status tombol
+          updateButton("#lampu-merah-btn", data.merah ? "on" : "off");
+          updateButton("#lampu-hijau-btn", data.hijau ? "on" : "off");
+          updateButton("#lampu-kuning-btn", data.kuning ? "on" : "off");
+        });
+      }
+
+      // Memperbarui status setiap 1 detik
+      setInterval(updateLampuStatus, 1000);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
