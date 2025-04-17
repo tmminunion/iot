@@ -29,15 +29,25 @@ void staranime() {
   
   runNING3LEDs(strip.Color(255, 255, 0), 100); // Hijau jalan
    meteorRain(strip.Color(255, 255, 0), 10, 64, true, 2);
-  trainEffect(strip.Color(0, 0, 255), strip.Color(255, 255, 0), 10, 10, 50);
+  trainEffect(strip.Color(225, 255, 255), strip.Color(255, 255, 0), 10, 10, 50);
   meteorRain(strip.Color(255, 255, 0), 15, 64, true, 15);
    meteorRain(strip.Color(255, 255, 0), 10, 64, true, 2);
   run3LEDs(strip.Color(255, 255, 0), 100); // Hijau jalan
    meteorRain(strip.Color(255, 255, 0), 10, 64, true, 2);
   waveEffect(strip.Color(255, 255, 0), 80);
  meteorRain(strip.Color(255, 255, 0), 6, 64, true, 5);
-  rainbowCycle(10);
+  rainbowCycle(20);
+    meteorRain(strip.Color(255, 255, 0), 10, 64, true, 2);
+snake(strip.Color(255, 255, 0), 20, 100);
   meteorRain(strip.Color(255, 255, 0), 6, 64, true, 5);
+  colorExplosion(strip.Color(255, 255, 0), 100);
+  meteorRain(strip.Color(255, 255, 0), 10, 64, true, 2);
+theaterChaseRainbow(10);
+  meteorRain(strip.Color(255, 255, 0), 10, 64, true, 2);
+oceanWave(strip.Color(255, 255, 0), 16, 100);
+  meteorRain(strip.Color(255, 255, 0), 10, 64, true, 2);
+fireFlicker(strip.Color(255, 255, 0), 170,12);
+  meteorRain(strip.Color(255, 255, 0), 10, 64, true, 2);
   delay(1000);
 }
 
@@ -74,6 +84,7 @@ void rainbowCycle(uint8_t wait) {
     delay(wait);
   }
 }
+
 
 // --- Animasi 3: Gelombang ---
 void waveEffect(uint32_t color, int delayTime) {
@@ -159,3 +170,74 @@ void meteorRain(uint32_t color, uint8_t meteorSize, uint8_t meteorTrailDecay, bo
     delay(speedDelay);
   }
 }
+
+void fireFlicker(uint32_t baseColor, int flickerAmount, int speedDelay) {
+  for (int i = 0; i < LED_COUNT; i++) {
+    int flicker = random(0, flickerAmount);
+    uint8_t r = (uint8_t)(baseColor >> 16) - flicker;
+    uint8_t g = (uint8_t)(baseColor >> 8) - flicker / 2;
+    uint8_t b = (uint8_t)(baseColor) - flicker / 3;
+   r = max((uint8_t)0, r);
+g = max((uint8_t)0, g);
+b = max((uint8_t)0, b);
+
+    strip.setPixelColor(i, strip.Color(r, g, b));
+  }
+  strip.show();
+  delay(speedDelay);
+}
+
+
+void oceanWave(uint32_t baseColor, float waveSpeed, int delayTime) {
+  float t = millis() / waveSpeed;
+  for (int i = 0; i < LED_COUNT; i++) {
+    float wave = sin(i * 0.15 + t) * 0.5 + 0.5;
+    uint32_t col = scaleColor(baseColor, wave * 255);
+    strip.setPixelColor(i, col);
+  }
+  strip.show();
+  delay(delayTime);
+}
+
+
+void theaterChaseRainbow(int wait) {
+  for (int j = 0; j < 256; j++) {
+    for (int q = 0; q < 3; q++) {
+      for (int i = 0; i < strip.numPixels(); i += 3) {
+        strip.setPixelColor(i + q, Wheel((i + j) % 255));
+      }
+      strip.show();
+      delay(wait);
+      for (int i = 0; i < strip.numPixels(); i += 3) {
+        strip.setPixelColor(i + q, 0); // clear
+      }
+    }
+  }
+}
+
+
+void colorExplosion(uint32_t color, int speedDelay) {
+  int mid = LED_COUNT / 2;
+  for (int i = 0; i <= mid; i++) {
+    strip.clear();
+    if (mid - i >= 0) strip.setPixelColor(mid - i, color);
+    if (mid + i < LED_COUNT) strip.setPixelColor(mid + i, color);
+    strip.show();
+    delay(speedDelay);
+  }
+}
+
+void snake(uint32_t color, int length, int delayTime) {
+  for (int i = 0; i < LED_COUNT + length; i++) {
+    strip.clear();
+    for (int j = 0; j < length; j++) {
+      int pos = i - j;
+      if (pos >= 0 && pos < LED_COUNT) {
+        strip.setPixelColor(pos, color);
+      }
+    }
+    strip.show();
+    delay(delayTime);
+  }
+}
+
